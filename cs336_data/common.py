@@ -3,6 +3,7 @@ from pathlib import Path
 import modal
 
 MODAL_SHARED_PATH = Path("/shared-data")
+MODEL_PATH = Path("./local-shared-data/lid.176.bin")
 
 
 def get_shared_assets_path() -> Path:
@@ -11,3 +12,7 @@ def get_shared_assets_path() -> Path:
         return local_path
     else:
         return MODAL_SHARED_PATH
+
+
+def get_id_language_model_path():
+    return MODEL_PATH
