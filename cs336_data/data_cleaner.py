@@ -7,6 +7,7 @@ from resiliparse.parse.encoding import detect_encoding, bytes_to_str
 from resiliparse.extract.html2text import extract_plain_text
 
 from cs336_data.common import get_id_language_model_path
+from cs336_data.common import NSFW_MODEL_PATH, TOXIC_SPEECH_MODEL_PATH
 
 
 EMAIL_PAT = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
@@ -108,3 +109,19 @@ def mask_ip_address(context: str) -> Tuple[str, int]:
     replaced_str, number = None, 0
     replaced_str, number = IP_ADDRESS_PAT.subn(IP_ADDRESS_MASK, context)
     return replaced_str, number
+
+
+def classify_nsfw(text: str) -> Tuple[Any, float]:
+    model = fasttext.load_model(str(NSFW_MODEL_PATH))
+    label, score = model.predict(text)
+    label = label[0].split("_")[-1]
+    score = score[0]
+    return label, score
+
+
+def classify_toxic_speech(text: str) -> Tuple[Any, float]:
+    model = fasttext.load_model(str(TOXIC_SPEECH_MODEL_PATH))
+    label, score = model.predict(text)
+    label = label[0].split("_")[-1]
+    score = score[0]
+    return label, score
