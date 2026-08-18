@@ -2,6 +2,7 @@ import re
 from typing import Any
 
 import fasttext
+from fastwarc.warc import ArchiveIterator, WarcRecordType
 from resiliparse.parse.encoding import detect_encoding, bytes_to_str
 from resiliparse.extract.html2text import extract_plain_text
 
@@ -28,3 +29,51 @@ def identify_language(text: str) -> tuple[Any, float]:
     lang = lang[0].split("_")[-1]
     score = score[0]
     return lang, score
+
+
+def get_html_from_warc(warc_path):
+    htmls = []
+    urls = []
+
+    # 你当前 fastwarc 版本要求传 file-like object，
+    # 不能直接把路径字符串传给 ArchiveIterator
+    with open(warc_path, "rb") as f:
+        for record in ArchiveIterator(
+            f,
+            record_types=WarcRecordType.response,
+        ):
+            # 只保留 HTML response
+            content_type = record.http_content_type
+
+            if content_type is None:
+                continue
+
+            if "html" not in content_type.lower():
+                continue
+
+            url = record.headers.get("WARC-Target-URI")
+
+            # HTTP body，已经不包含 HTTP headers
+            html_bytes = record.reader.read()
+
+            if not html_bytes:
+                continue
+
+            # 优先使用 HTTP Content-Type 中声明的 charset
+            charset = record.http_charset or "utf-8"
+
+            try:
+                html = html_bytes.decode(
+                    charset,
+                    errors="replace",
+                )
+            except (LookupError, UnicodeDecodeError):
+                html = html_bytes.decode(
+                    "utf-8",
+                    errors="replace",
+                )
+
+            htmls.append(html)
+            urls.append(url)
+
+    return htmls, urls
