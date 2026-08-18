@@ -1,5 +1,5 @@
 import re
-from typing import Any
+from typing import Any, Tuple
 
 import fasttext
 from fastwarc.warc import ArchiveIterator, WarcRecordType
@@ -7,6 +7,19 @@ from resiliparse.parse.encoding import detect_encoding, bytes_to_str
 from resiliparse.extract.html2text import extract_plain_text
 
 from cs336_data.common import get_id_language_model_path
+
+
+EMAIL_PAT = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
+PHONE_PAT = re.compile(
+    r"(?<!\d)(?:(?:\+?86[-.\s]?)?1[3-9]\d{9}|(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4})(?!\d)"
+)
+IP_ADDRESS_PAT = r"(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}"
+IP_ADDRESS_PAT = re.compile(IP_ADDRESS_PAT)
+
+
+EMAIL_MASK = "|||EMAIL_ADDRESS|||"
+PHONE_MASK = "|||PHONE_NUMBER|||"
+IP_ADDRESS_MASK = "|||IP_ADDRESS|||"
 
 
 def clear_space(text):
@@ -77,3 +90,21 @@ def get_html_from_warc(warc_path):
             urls.append(url)
 
     return htmls, urls
+
+
+def mask_email(context: str) -> Tuple[str, int]:
+    replaced_str, number_of_email = None, 0
+    replaced_str, number_of_email = EMAIL_PAT.subn(EMAIL_MASK, context)
+    return replaced_str, number_of_email
+
+
+def mask_phone_number(context: str) -> Tuple[str, int]:
+    replaced_str, number_of_phone = None, 0
+    replaced_str, number_of_phone = PHONE_PAT.subn(PHONE_MASK, context)
+    return replaced_str, number_of_phone
+
+
+def mask_ip_address(context: str) -> Tuple[str, int]:
+    replaced_str, number = None, 0
+    replaced_str, number = IP_ADDRESS_PAT.subn(IP_ADDRESS_MASK, context)
+    return replaced_str, number
