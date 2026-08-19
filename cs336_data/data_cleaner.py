@@ -1,5 +1,5 @@
 import re
-from typing import Any, Tuple
+from typing import Any, Tuple, List
 
 import fasttext
 from fastwarc.warc import ArchiveIterator, WarcRecordType
@@ -125,3 +125,51 @@ def classify_toxic_speech(text: str) -> Tuple[Any, float]:
     label = label[0].split("_")[-1]
     score = score[0]
     return label, score
+
+
+def gopher_quality_filter(text: str) -> bool:
+    """
+    规则:
+      文档中的单词数量少于 50 个或多于 100,000 个；
+      单词的平均长度不在 3～10 个字符之间；
+      超过 30% 的行以省略号 ... 结尾；
+      含有至少一个英文字母的单词比例低于 80%。
+    """
+    result = True
+    words = text.split()
+    lines = text.splitlines()
+
+    words_num = len(words)
+    is_rule1 = words_num < 50 or words_num > 100_000
+
+    averge_word_len = sum([len(word) for word in words]) / len(words)
+    is_rule2 = averge_word_len < 3 or averge_word_len > 10
+
+    line_num_with_end = get_line_end_with(lines, "...")
+    is_rule3 = line_num_with_end / len(lines) > 0.3
+
+    is_rule4 = computer_rate_of_word_include_one_letter(words) < 0.8
+
+    result = not (is_rule1 or is_rule2 or is_rule3 or is_rule4)
+    return result
+
+
+def get_line_end_with(lines: List[str], end):
+    count = 0
+    for line in lines:
+        if line.endswith(end):
+            count += 1
+    return count
+
+
+def computer_rate_of_word_include_one_letter(words):
+    count, all_count = 0, len(words)
+    for word in words:
+        if re.match("[A-Za-z]", word):
+            count += 1
+    return count / all_count
+
+
+if __name__ == "__main__":
+    text = "the be " * 100
+    print(gopher_quality_filter(text))
