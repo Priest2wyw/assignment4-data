@@ -134,6 +134,9 @@ def gopher_quality_filter(text: str) -> bool:
       单词的平均长度不在 3～10 个字符之间；
       超过 30% 的行以省略号 ... 结尾；
       含有至少一个英文字母的单词比例低于 80%。
+    result:
+        True: 保留
+        False: drop
     """
     result = True
     words = text.split()
