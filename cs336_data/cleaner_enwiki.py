@@ -27,7 +27,7 @@ def process_text(text: str):
     return text
 
 
-def main(dir_path: Path, output_file_path: Path):
+def main(dir_path: Path, output_file_path: Path, batch_size: int = 2000):
     """
     batch_read_files like "wiki_*" in a dir read line.text
     for text in lines:
