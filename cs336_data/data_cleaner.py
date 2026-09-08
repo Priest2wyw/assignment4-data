@@ -7,7 +7,7 @@ from resiliparse.parse.encoding import detect_encoding, bytes_to_str
 from resiliparse.extract.html2text import extract_plain_text
 
 from cs336_data.common import get_id_language_model_path
-from cs336_data.common import NSFW_MODEL_PATH, TOXIC_SPEECH_MODEL_PATH
+from cs336_data.common import NSFW_MODEL_PATH, TOXIC_SPEECH_MODEL_PATH, CLASSIFY_MODEL_BIN
 
 
 EMAIL_PAT = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
@@ -171,6 +171,16 @@ def computer_rate_of_word_include_one_letter(words):
         if re.match("[A-Za-z]", word):
             count += 1
     return count / all_count
+
+
+def classify_quality(text: str):
+    text = text.replace("\n", "")
+    model = fasttext.load_model(str(CLASSIFY_MODEL_BIN))
+    label, score = model.predict(text=text)
+
+    label = label[0].split("_")[-1]
+    score = score[0]
+    return label, score
 
 
 if __name__ == "__main__":

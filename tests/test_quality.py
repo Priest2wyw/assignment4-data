@@ -11,9 +11,7 @@ def test_classify_quality():
     with open(low_quality_cc_path) as f:
         low_quality_cc = f.read()
     prediction, score = run_classify_quality(low_quality_cc)
-    # TODO: you may have to change this check below, depending on what your
-    # quality classifier returns.
-    assert prediction == "cc"
+    assert prediction == "lq"
     assert isinstance(score, float)
     assert score > 0
 
@@ -21,18 +19,13 @@ def test_classify_quality():
     with open(high_quality_wiki_path) as f:
         high_quality_wiki = f.read()
     prediction, score = run_classify_quality(high_quality_wiki)
-    # TODO: you may have to change this check below, depending on what your
-    # quality classifier returns.
-    assert prediction == "wiki"
+    assert prediction == "hq"
     assert isinstance(score, float)
     assert score > 0
 
 
 def test_gopher_valid_input():
-    text = (
-        "This should definitely be a valid input text "
-        "and of high quality according to Gopher rules. "
-    ) * 100
+    text = ("This should definitely be a valid input text and of high quality according to Gopher rules. ") * 100
     assert run_gopher_quality_filter(text)
 
 
@@ -61,9 +54,7 @@ def test_gopher_average_word_length_less_than_3():
 
 
 def test_gopher_average_word_length_greater_than_10():
-    text = (
-        "the and " + "extraordinarily extraordinarily extraordinarily longesest " * 100
-    )
+    text = "the and " + "extraordinarily extraordinarily extraordinarily longesest " * 100
     assert not run_gopher_quality_filter(text)
 
     text = "the and this is fine " * 100
@@ -71,17 +62,12 @@ def test_gopher_average_word_length_greater_than_10():
 
 
 def test_gopher_more_than_30_percent_lines_ending_with_ellipsis():
-    lines = [
-        "The line here is an example of line ending with an ellipsis..."
-        for _ in range(70)
-    ]
+    lines = ["The line here is an example of line ending with an ellipsis..." for _ in range(70)]
     lines += ["This is a normal line." for _ in range(30)]
     text = "\n".join(lines)
     assert not run_gopher_quality_filter(text)
 
-    lines = [
-        "The line here is an example of ending with ellipsis..." for _ in range(30)
-    ]
+    lines = ["The line here is an example of ending with ellipsis..." for _ in range(30)]
     lines += ["This is a normal line." for _ in range(230)]
     text = "\n".join(lines)
     assert run_gopher_quality_filter(text)

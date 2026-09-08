@@ -7,6 +7,9 @@ MODEL_PATH = Path("./local-shared-data/lid.176.bin")
 NSFW_MODEL_PATH = Path("./local-shared-data/classifiers/jigsaw_fasttext_bigrams_nsfw_final.bin")
 TOXIC_SPEECH_MODEL_PATH = Path("./local-shared-data/classifiers/jigsaw_fasttext_bigrams_hatespeech_final.bin")
 
+script_dir = Path("/data/youwei/files/cs336/cs336_data/CC")
+CLASSIFY_MODEL_BIN = script_dir / "quality_classifier.bin"
+
 
 def get_shared_assets_path() -> Path:
     if modal.is_local():

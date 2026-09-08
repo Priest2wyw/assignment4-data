@@ -7,7 +7,7 @@ from cs336_data.data_cleaner import extract_text_from_html
 from cs336_data.data_cleaner import identify_language
 from cs336_data.data_cleaner import mask_email, mask_ip_address, mask_phone_number
 from cs336_data.data_cleaner import classify_nsfw, classify_toxic_speech
-from cs336_data.data_cleaner import gopher_quality_filter
+from cs336_data.data_cleaner import gopher_quality_filter, classify_quality
 
 
 def run_extract_text_from_html_bytes(html_bytes: bytes) -> str | None:
@@ -39,7 +39,8 @@ def run_classify_toxic_speech(text: str) -> tuple[Any, float]:
 
 
 def run_classify_quality(text: str) -> tuple[Any, float]:
-    raise NotImplementedError
+
+    return classify_quality(text)
 
 
 def run_gopher_quality_filter(text: str) -> bool:
