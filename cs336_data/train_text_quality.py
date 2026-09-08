@@ -18,7 +18,7 @@ def get_train_data(positive_file_path: Path,
                    negative_file_path: Path, 
                    output_file: str,
                    postive_rate=0.8, 
-                   total_size=1000_000,
+                   total_size=100_000,
                    seed=42)->list[str]:
     random.seed(seed)
     train_data = []
@@ -75,14 +75,14 @@ def train_quality_classifier(
     默认参数已针对中文/英文维基质量过滤调优，可外部覆盖
     """
     defaults = dict(
-        lr=0.001,
+        lr=0.1,
         epoch=25,
         wordNgrams=2,
         dim=100,
         loss='softmax',
         minCount=10,
         bucket=2_000_000,
-        thread=8,          # 多线程加速
+        thread=12,          # 多线程加速
     )
     defaults.update(kwargs)
     print(f"set of train is {defaults}")
